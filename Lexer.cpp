@@ -1,11 +1,10 @@
 #include "Lexer.h"
 #include <fstream>
 #include <iostream>
-#include <regex>
 #include <sstream>
 #include <vector>
 
-// Implementación de la función removeCommentsAndPrintTokens
+// Función para tokenizar y mostrar tokens en la consola
 void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -15,7 +14,6 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
 
     std::string line;
     while (std::getline(file, line)) {
-        // Procesar cada línea individualmente
         std::vector<std::pair<std::string, std::string>> tokens;
 
         // Procesar comentarios de varias líneas
@@ -31,7 +29,6 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("comment_singleline"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            // Añadir manejo especial para #t, #f y null como literales en lugar de comentarios
             std::string comment = match.str();
             if (comment.find("#t") != std::string::npos || comment.find("#f") != std::string::npos || comment.find("null") != std::string::npos) {
                 std::string::size_type pos = 0;
@@ -77,9 +74,8 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
             std::string token = match.str();
-            // Verificar si el operador es un guion y está dentro de un identificador
             if (token == "-" && std::regex_search(match.prefix().str() + "-" + match.suffix().str(), regexMap.at("identifier"))) {
-                continue; // Saltar si es parte de un identificador
+                continue;
             }
             tokens.emplace_back("operator", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
@@ -93,7 +89,6 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
-        // Imprimir tokens en orden
         for (const auto& token : tokens) {
             std::cout << "Found " << token.first << ": " << token.second << std::endl;
         }
@@ -101,7 +96,7 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
     file.close();
 }
 
-// Implementación de la función removeCommentsAndStoreTokens
+// Función para tokenizar y almacenar tokens en un vector
 std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
     std::ifstream file(filePath);
     std::vector<Token> tokens;
@@ -113,14 +108,14 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
 
     std::string line;
     while (std::getline(file, line)) {
-        // Procesar cada línea individualmente
+        std::vector<std::pair<std::string, std::string>> lineTokens;
 
         // Procesar comentarios de varias líneas
         std::sregex_iterator begin(line.begin(), line.end(), regexMap.at("comment_multiline"));
         std::sregex_iterator end;
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.push_back({ "comment_multiline", match.str() });
+            lineTokens.emplace_back("comment_multiline", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -128,27 +123,26 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("comment_singleline"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            // Añadir manejo especial para #t, #f y null como literales en lugar de comentarios
             std::string comment = match.str();
             if (comment.find("#t") != std::string::npos || comment.find("#f") != std::string::npos || comment.find("null") != std::string::npos) {
                 std::string::size_type pos = 0;
                 while ((pos = comment.find("#t", pos)) != std::string::npos) {
-                    tokens.push_back({ "literal", "#t" });
+                    lineTokens.emplace_back("literal", "#t");
                     pos += 2;
                 }
                 pos = 0;
                 while ((pos = comment.find("#f", pos)) != std::string::npos) {
-                    tokens.push_back({ "literal", "#f" });
+                    lineTokens.emplace_back("literal", "#f");
                     pos += 2;
                 }
                 pos = 0;
                 while ((pos = comment.find("null", pos)) != std::string::npos) {
-                    tokens.push_back({ "literal", "null" });
+                    lineTokens.emplace_back("literal", "null");
                     pos += 4;
                 }
             }
             else {
-                tokens.push_back({ "comment_singleline", match.str() });
+                lineTokens.emplace_back("comment_singleline", match.str());
             }
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
@@ -157,7 +151,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("literal"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.push_back({ "literal", match.str() });
+            lineTokens.emplace_back("literal", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -165,7 +159,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("keyword"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.push_back({ "keyword", match.str() });
+            lineTokens.emplace_back("keyword", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -174,11 +168,10 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
             std::string token = match.str();
-            // Verificar si el operador es un guion y está dentro de un identificador
             if (token == "-" && std::regex_search(match.prefix().str() + "-" + match.suffix().str(), regexMap.at("identifier"))) {
-                continue; // Saltar si es parte de un identificador
+                continue;
             }
-            tokens.push_back({ "operator", match.str() });
+            lineTokens.emplace_back("operator", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -186,8 +179,12 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("identifier"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.push_back({ "identifier", match.str() });
+            lineTokens.emplace_back("identifier", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
+        }
+
+        for (const auto& token : lineTokens) {
+            tokens.emplace_back(token.first, token.second);
         }
     }
 
@@ -195,10 +192,15 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
     return tokens;
 }
 
-// Implementación de la función generateHTMLWithTokens
-void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string& outputFilePath) {
-    std::ofstream outputFile(outputFilePath);
+// Función para generar HTML con los tokens y el contenido del archivo de entrada
+void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string& inputFilePath, const std::string& outputFilePath) {
+    std::ifstream inputFile(inputFilePath);
+    if (!inputFile.is_open()) {
+        std::cerr << "Error opening file: " << inputFilePath << std::endl;
+        return;
+    }
 
+    std::ofstream outputFile(outputFilePath);
     if (!outputFile.is_open()) {
         std::cerr << "Error opening file: " << outputFilePath << std::endl;
         return;
@@ -213,10 +215,19 @@ void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string&
         << ".identifier { color: aqua; }"
         << "</style></head><body><pre>";
 
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        outputFile << line << "\n";
+    }
+
+    outputFile << "\nTokens:\n";
+
     for (const auto& token : tokens) {
-        outputFile << "<span class=\"" << token.type << "\">" << token.value << "</span> ";
+        outputFile << "Found <span class=\"" << token.type << "\">" << token.type << "</span>: <span class=\"" << token.type << "\">" << token.value << "</span><br>";
     }
 
     outputFile << "</pre></body></html>";
+
+    inputFile.close();
     outputFile.close();
 }
