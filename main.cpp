@@ -13,12 +13,12 @@ int main() {
     regexMap["comment_multiline"] = std::regex(R"((\/\*[\s\S]*?\*\/)|(\#\|[\s\S]*?\|\#)|(\"\"\"[\s\S]*?\"\"\"))");
 
     // Comentarios de una línea
-    regexMap["comment_singleline"] = std::regex(R"((\/\/.*)|(\;.*)|(\#.*))");
+    regexMap["comment_singleline"] = std::regex(R"((\/\/.*)|(#[^\w].*)|(\;.*))");
 
     // Identificadores
     regexMap["identifier"] = std::regex(R"(\b[a-zA-Z_][a-zA-Z0-9_]*\b)");
 
-    // Literales (incluyendo True, False y None)
+    // Literales (incluyendo True, False, None, #t, #f, null)
     regexMap["literal"] = std::regex(R"((\".*?\")|('.*?')|(\b\d+\b)|(True|False|None|true|false|NULL|#t|#f|null))");
 
     // Operadores

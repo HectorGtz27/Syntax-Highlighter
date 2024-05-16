@@ -34,19 +34,19 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
-        // Procesar palabras clave
-        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("keyword"));
-        for (std::sregex_iterator i = begin; i != end; ++i) {
-            std::smatch match = *i;
-            tokens.emplace_back("keyword", match.str());
-            line.replace(match.position(), match.length(), std::string(match.length(), ' '));
-        }
-
         // Procesar literales
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("literal"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
             tokens.emplace_back("literal", match.str());
+            line.replace(match.position(), match.length(), std::string(match.length(), ' '));
+        }
+
+        // Procesar palabras clave
+        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("keyword"));
+        for (std::sregex_iterator i = begin; i != end; ++i) {
+            std::smatch match = *i;
+            tokens.emplace_back("keyword", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
