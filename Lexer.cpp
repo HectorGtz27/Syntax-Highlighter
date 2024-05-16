@@ -3,6 +3,7 @@
 #include <iostream>
 #include <regex>
 #include <sstream>
+#include <vector>
 
 void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
     std::ifstream file(filePath);
@@ -23,51 +24,59 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
     std::regex operatorRegex = regexMap.at("operator");
     std::regex identifierRegex = regexMap.at("identifier");
 
-    // Identificar y eliminar comentarios de varias líneas
+    // Almacenar tokens encontrados
+    std::vector<std::pair<std::string, std::string>> tokens;
+
+    // Procesar comentarios de varias líneas
     std::sregex_iterator begin(content.begin(), content.end(), multilineCommentRegex);
     std::sregex_iterator end;
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
-        std::cout << "Found comment: " << match.str() << std::endl;
+        tokens.emplace_back("comment", match.str());
         content.replace(match.position(), match.length(), std::string(match.length(), ' '));
     }
 
-    // Identificar y eliminar comentarios de una línea
+    // Procesar comentarios de una línea
     begin = std::sregex_iterator(content.begin(), content.end(), singlelineCommentRegex);
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
-        std::cout << "Found comment: " << match.str() << std::endl;
+        tokens.emplace_back("comment", match.str());
         content.replace(match.position(), match.length(), std::string(match.length(), ' '));
     }
 
-    // Identificar palabras clave
+    // Procesar palabras clave
     begin = std::sregex_iterator(content.begin(), content.end(), keywordRegex);
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
-        std::cout << "Found keyword: " << match.str() << std::endl;
+        tokens.emplace_back("keyword", match.str());
         content.replace(match.position(), match.length(), std::string(match.length(), ' '));
     }
 
-    // Identificar literales
+    // Procesar literales
     begin = std::sregex_iterator(content.begin(), content.end(), literalRegex);
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
-        std::cout << "Found literal: " << match.str() << std::endl;
+        tokens.emplace_back("literal", match.str());
         content.replace(match.position(), match.length(), std::string(match.length(), ' '));
     }
 
-    // Identificar operadores
+    // Procesar operadores
     begin = std::sregex_iterator(content.begin(), content.end(), operatorRegex);
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
-        std::cout << "Found operator: " << match.str() << std::endl;
+        tokens.emplace_back("operator", match.str());
         content.replace(match.position(), match.length(), std::string(match.length(), ' '));
     }
 
-    // Identificar identificadores
+    // Procesar identificadores
     begin = std::sregex_iterator(content.begin(), content.end(), identifierRegex);
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
-        std::cout << "Found identifier: " << match.str() << std::endl;
+        tokens.emplace_back("identifier", match.str());
+    }
+
+    // Imprimir tokens en orden
+    for (const auto& token : tokens) {
+        std::cout << "Found " << token.first << ": " << token.second << std::endl;
     }
 }
