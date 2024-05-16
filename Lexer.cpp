@@ -54,11 +54,6 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("operator"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            // Verificar si el operador es un guion y está dentro de un identificador
-            std::string token = match.str();
-            if (token == "-" && std::regex_search(match.prefix().str() + "-" + match.suffix().str(), regexMap.at("identifier"))) {
-                continue; // Saltar si es parte de un identificador
-            }
             tokens.emplace_back("operator", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
