@@ -1,4 +1,3 @@
-// main.cpp
 #include "SExpr.h"
 #include "RegexConverter.h"
 #include "Lexer.h"
@@ -27,7 +26,7 @@ int main() {
         regexMap["operator"] = std::regex(R"([+\-*/=<>!&|^%~]+)");
 
         // Palabras clave
-        regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|void|define|list|display)\b)");
+        regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|void|define|list|display|print|printf|int)\b)");
 
         // Imprimir los tokens en consola
         removeCommentsAndPrintTokens("ejemplos.txt", regexMap);
@@ -35,10 +34,8 @@ int main() {
         // Guardar los tokens en un vector
         std::vector<Token> tokens = removeCommentsAndStoreTokens("ejemplos.txt", regexMap);
 
-        // Imprimir los tokens almacenados en el vector
-        for (const auto& token : tokens) {
-            std::cout << "Stored " << token.type << ": " << token.value << std::endl;
-        }
+        // Generar el archivo HTML con los tokens
+        generateHTMLWithTokens(tokens, "output.html");
     }
     catch (const std::regex_error& e) {
         std::cerr << "Regex error: " << e.what() << std::endl;

@@ -1,4 +1,3 @@
-// Lexer.cpp
 #include "Lexer.h"
 #include <fstream>
 #include <iostream>
@@ -194,4 +193,30 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
 
     file.close();
     return tokens;
+}
+
+// Implementación de la función generateHTMLWithTokens
+void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string& outputFilePath) {
+    std::ofstream outputFile(outputFilePath);
+
+    if (!outputFile.is_open()) {
+        std::cerr << "Error opening file: " << outputFilePath << std::endl;
+        return;
+    }
+
+    outputFile << "<!DOCTYPE html><html><head><style>"
+        << ".comment_multiline { color: green; }"
+        << ".comment_singleline { color: green; }"
+        << ".literal { color: orange; }"
+        << ".keyword { color: blue; font-weight: bold; }"
+        << ".operator { color: red; }"
+        << ".identifier { color: aqua; }"
+        << "</style></head><body><pre>";
+
+    for (const auto& token : tokens) {
+        outputFile << "<span class=\"" << token.type << "\">" << token.value << "</span> ";
+    }
+
+    outputFile << "</pre></body></html>";
+    outputFile.close();
 }

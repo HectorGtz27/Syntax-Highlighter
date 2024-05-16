@@ -1,4 +1,3 @@
-// Lexer.h
 #ifndef LEXER_H
 #define LEXER_H
 
@@ -15,5 +14,6 @@ struct Token {
 
 void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap);
 std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap);
+void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string& outputFilePath);
 
 #endif // LEXER_H
