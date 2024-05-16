@@ -1,0 +1,30 @@
+# Python
+def example_function(x, y):
+    if x > y:
+        return x
+    else:
+        return y
+
+print(True, False, None)
+
+
+// C
+void example_function(int x, int y) {
+    if (x > y) {
+        return x;
+    } else {
+        return y;
+    }
+}
+
+printf("%d %d %d\n", true, false, NULL);
+
+
+; Racket
+(define (example-function x y)
+  (if (> x y)
+      (return x)
+      (return y)))
+
+(display (list #t #f null))
+

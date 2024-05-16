@@ -3,7 +3,6 @@
 #include <iostream>
 #include <regex>
 #include <sstream>
-#include <map>
 
 void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
     std::ifstream file(filePath);
