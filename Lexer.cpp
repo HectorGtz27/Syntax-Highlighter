@@ -21,17 +21,16 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
     std::regex singlelineCommentRegex("#.*");
     std::regex identifierRegex("\\b[a-zA-Z_][a-zA-Z0-9_]*\\b");
 
-    std::sregex_iterator begin, end;
-
-    // Identificar comentarios de varias líneas
-    begin = std::sregex_iterator(content.begin(), content.end(), multilineCommentRegex);
+    // Identificar y eliminar comentarios de varias líneas
+    std::sregex_iterator begin(content.begin(), content.end(), multilineCommentRegex);
+    std::sregex_iterator end;
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
         std::cout << "Found comment: " << match.str() << std::endl;
         content.replace(match.position(), match.length(), std::string(match.length(), ' '));
     }
 
-    // Identificar comentarios de una línea
+    // Identificar y eliminar comentarios de una línea
     begin = std::sregex_iterator(content.begin(), content.end(), singlelineCommentRegex);
     for (std::sregex_iterator i = begin; i != end; ++i) {
         std::smatch match = *i;
