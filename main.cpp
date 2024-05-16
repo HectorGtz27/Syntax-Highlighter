@@ -30,6 +30,7 @@ int main() {
 
         // Imprimir los tokens en consola
         removeCommentsAndPrintTokens("ejemplos.txt", regexMap);
+        generateHTML("ejemplos.txt", "output.html", regexMap);
     }
     catch (const std::regex_error& e) {
         std::cerr << "Regex error: " << e.what() << std::endl;
