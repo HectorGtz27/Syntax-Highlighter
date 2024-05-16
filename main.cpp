@@ -18,14 +18,14 @@ int main() {
     // Identificadores
     regexMap["identifier"] = std::regex(R"(\b[a-zA-Z_][a-zA-Z0-9_]*\b)");
 
-    // Literales
-    regexMap["literal"] = std::regex(R"((\".*?\")|('.*?')|(\b\d+\b))");
+    // Literales (incluyendo True, False y None)
+    regexMap["literal"] = std::regex(R"((\".*?\")|('.*?')|(\b\d+\b)|(True|False|None|true|false|NULL|#t|#f|null))");
 
     // Operadores
     regexMap["operator"] = std::regex(R"([+\-*/=<>!&|^%~]+)");
 
     // Palabras clave
-    regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|True|False|None|void|define|null|NULL|true|false|#t|#f)\b)");
+    regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|void|define|list|display)\b)");
 
     // Imprimir los tokens en consola
     removeCommentsAndPrintTokens("ejemplos.txt", regexMap);
