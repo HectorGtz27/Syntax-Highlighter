@@ -30,7 +30,28 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("comment_singleline"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.emplace_back("comment_singleline", match.str());
+            // Añadir manejo especial para #t, #f y null como literales en lugar de comentarios
+            std::string comment = match.str();
+            if (comment.find("#t") != std::string::npos || comment.find("#f") != std::string::npos || comment.find("null") != std::string::npos) {
+                std::string::size_type pos = 0;
+                while ((pos = comment.find("#t", pos)) != std::string::npos) {
+                    tokens.emplace_back("literal", "#t");
+                    pos += 2;
+                }
+                pos = 0;
+                while ((pos = comment.find("#f", pos)) != std::string::npos) {
+                    tokens.emplace_back("literal", "#f");
+                    pos += 2;
+                }
+                pos = 0;
+                while ((pos = comment.find("null", pos)) != std::string::npos) {
+                    tokens.emplace_back("literal", "null");
+                    pos += 4;
+                }
+            }
+            else {
+                tokens.emplace_back("comment_singleline", match.str());
+            }
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -54,8 +75,8 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("operator"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            // Verificar si el operador es un guion y está dentro de un identificador
             std::string token = match.str();
+            // Verificar si el operador es un guion y está dentro de un identificador
             if (token == "-" && std::regex_search(match.prefix().str() + "-" + match.suffix().str(), regexMap.at("identifier"))) {
                 continue; // Saltar si es parte de un identificador
             }
