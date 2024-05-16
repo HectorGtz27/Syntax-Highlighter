@@ -7,7 +7,6 @@ def example_function(x, y):
 
 print(True, False, None)
 
-
 // C
 void example_function(int x, int y) {
     if (x > y) {
@@ -27,4 +26,7 @@ printf("%d %d %d\n", true, false, NULL);
       (return y)))
 
 (display (list #t #f null))
+
+
+
 

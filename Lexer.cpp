@@ -1,3 +1,4 @@
+// Lexer.cpp
 #include "Lexer.h"
 #include <fstream>
 #include <iostream>
@@ -5,6 +6,7 @@
 #include <sstream>
 #include <vector>
 
+// Implementación de la función removeCommentsAndPrintTokens
 void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -100,40 +102,26 @@ void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<st
     file.close();
 }
 
-void generateHTML(const std::string& inputFilePath, const std::string& outputFilePath, const std::map<std::string, std::regex>& regexMap) {
-    std::ifstream inputFile(inputFilePath);
-    if (!inputFile.is_open()) {
-        std::cerr << "Error opening file: " << inputFilePath << std::endl;
-        return;
-    }
+// Implementación de la función removeCommentsAndStoreTokens
+std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
+    std::ifstream file(filePath);
+    std::vector<Token> tokens;
 
-    std::ofstream outputFile(outputFilePath);
-    if (!outputFile.is_open()) {
-        std::cerr << "Error opening file: " << outputFilePath << std::endl;
-        return;
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << filePath << std::endl;
+        return tokens;
     }
-
-    outputFile << "<!DOCTYPE html><html><head><style>"
-        << ".comment_multiline { color: green; }"
-        << ".comment_singleline { color: green; }"
-        << ".literal { color: orange; }"
-        << ".keyword { color: blue; font-weight: bold; }"
-        << ".operator { color: red; }"
-        << ".identifier { color: aqua; }"
-        << "</style></head><body><pre>";
 
     std::string line;
-    while (std::getline(inputFile, line)) {
-        std::string originalLine = line; // Mantener una copia de la línea original
+    while (std::getline(file, line)) {
         // Procesar cada línea individualmente
-        std::vector<std::pair<std::string, std::string>> tokens;
 
         // Procesar comentarios de varias líneas
         std::sregex_iterator begin(line.begin(), line.end(), regexMap.at("comment_multiline"));
         std::sregex_iterator end;
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.emplace_back("comment_multiline", match.str());
+            tokens.push_back({ "comment_multiline", match.str() });
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -146,22 +134,22 @@ void generateHTML(const std::string& inputFilePath, const std::string& outputFil
             if (comment.find("#t") != std::string::npos || comment.find("#f") != std::string::npos || comment.find("null") != std::string::npos) {
                 std::string::size_type pos = 0;
                 while ((pos = comment.find("#t", pos)) != std::string::npos) {
-                    tokens.emplace_back("literal", "#t");
+                    tokens.push_back({ "literal", "#t" });
                     pos += 2;
                 }
                 pos = 0;
                 while ((pos = comment.find("#f", pos)) != std::string::npos) {
-                    tokens.emplace_back("literal", "#f");
+                    tokens.push_back({ "literal", "#f" });
                     pos += 2;
                 }
                 pos = 0;
                 while ((pos = comment.find("null", pos)) != std::string::npos) {
-                    tokens.emplace_back("literal", "null");
+                    tokens.push_back({ "literal", "null" });
                     pos += 4;
                 }
             }
             else {
-                tokens.emplace_back("comment_singleline", match.str());
+                tokens.push_back({ "comment_singleline", match.str() });
             }
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
@@ -170,7 +158,7 @@ void generateHTML(const std::string& inputFilePath, const std::string& outputFil
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("literal"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.emplace_back("literal", match.str());
+            tokens.push_back({ "literal", match.str() });
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -178,7 +166,7 @@ void generateHTML(const std::string& inputFilePath, const std::string& outputFil
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("keyword"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.emplace_back("keyword", match.str());
+            tokens.push_back({ "keyword", match.str() });
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -191,7 +179,7 @@ void generateHTML(const std::string& inputFilePath, const std::string& outputFil
             if (token == "-" && std::regex_search(match.prefix().str() + "-" + match.suffix().str(), regexMap.at("identifier"))) {
                 continue; // Saltar si es parte de un identificador
             }
-            tokens.emplace_back("operator", match.str());
+            tokens.push_back({ "operator", match.str() });
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
@@ -199,26 +187,11 @@ void generateHTML(const std::string& inputFilePath, const std::string& outputFil
         begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("identifier"));
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
-            tokens.emplace_back("identifier", match.str());
+            tokens.push_back({ "identifier", match.str() });
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
-
-        // Generar HTML con los tokens en orden
-        std::string htmlLine;
-        size_t currentPos = 0;
-        for (const auto& token : tokens) {
-            size_t tokenPos = originalLine.find(token.second, currentPos);
-            if (tokenPos != std::string::npos) {
-                htmlLine += originalLine.substr(currentPos, tokenPos - currentPos);
-                htmlLine += "<span class=\"" + token.first + "\">" + token.second + "</span>";
-                currentPos = tokenPos + token.second.length();
-            }
-        }
-        htmlLine += originalLine.substr(currentPos);
-        outputFile << htmlLine << "\n";
     }
 
-    outputFile << "</pre></body></html>";
-    inputFile.close();
-    outputFile.close();
+    file.close();
+    return tokens;
 }

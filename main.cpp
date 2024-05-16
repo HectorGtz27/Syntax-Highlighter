@@ -1,3 +1,4 @@
+// main.cpp
 #include "SExpr.h"
 #include "RegexConverter.h"
 #include "Lexer.h"
@@ -30,7 +31,14 @@ int main() {
 
         // Imprimir los tokens en consola
         removeCommentsAndPrintTokens("ejemplos.txt", regexMap);
-        generateHTML("ejemplos.txt", "output.html", regexMap);
+
+        // Guardar los tokens en un vector
+        std::vector<Token> tokens = removeCommentsAndStoreTokens("ejemplos.txt", regexMap);
+
+        // Imprimir los tokens almacenados en el vector
+        for (const auto& token : tokens) {
+            std::cout << "Stored " << token.type << ": " << token.value << std::endl;
+        }
     }
     catch (const std::regex_error& e) {
         std::cerr << "Regex error: " << e.what() << std::endl;
