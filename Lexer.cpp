@@ -1,32 +1,48 @@
 #include "Lexer.h"
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include <sstream>
-#include <unordered_map>
 
-// Función para imprimir los tokens en consola
-void printTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
+// Función para imprimir los tokens en consola, asegurando que los comentarios se detecten y se omitan al buscar identificadores
+void removeCommentsAndPrintTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
         std::cerr << "Error opening file: " << filePath << std::endl;
         return;
     }
 
-    std::string line;
-    int lineNumber = 1;
-    while (std::getline(file, line)) {
-        for (const auto& token : regexMap) {
-            const auto& tokenType = token.first;
-            const auto& regex = token.second;
-            std::sregex_iterator begin(line.begin(), line.end(), regex);
-            std::sregex_iterator end;
-            for (std::sregex_iterator i = begin; i != end; ++i) {
-                std::smatch match = *i;
-                std::cout << "Found " << tokenType << " at line " << lineNumber << ": " << match.str() << std::endl;
-            }
-        }
-        lineNumber++;
+    std::ostringstream buffer;
+    buffer << file.rdbuf();
+    std::string content = buffer.str();
+    file.close();
+
+    std::regex multilineCommentRegex("\"\"\"[\\s\\S]*?\"\"\"");
+    std::regex singlelineCommentRegex("#.*");
+    std::regex identifierRegex("\\b[a-zA-Z_][a-zA-Z0-9_]*\\b");
+
+    std::sregex_iterator begin, end;
+
+    // Identificar comentarios de varias líneas
+    begin = std::sregex_iterator(content.begin(), content.end(), multilineCommentRegex);
+    for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::smatch match = *i;
+        std::cout << "Found comment: " << match.str() << std::endl;
+        content.replace(match.position(), match.length(), std::string(match.length(), ' '));
     }
 
-    file.close();
+    // Identificar comentarios de una línea
+    begin = std::sregex_iterator(content.begin(), content.end(), singlelineCommentRegex);
+    for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::smatch match = *i;
+        std::cout << "Found comment: " << match.str() << std::endl;
+        content.replace(match.position(), match.length(), std::string(match.length(), ' '));
+    }
+
+    // Identificar identificadores
+    begin = std::sregex_iterator(content.begin(), content.end(), identifierRegex);
+    for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::smatch match = *i;
+        std::cout << "Found identifier: " << match.str() << std::endl;
+    }
 }
