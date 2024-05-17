@@ -102,7 +102,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
     return tokens;
 }
 
-// Function to generate HTML with the input file content
+// Function to generate HTML with the input file content and highlight tokens
 void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string& inputFilePath, const std::string& outputFilePath) {
     std::ifstream inputFile(inputFilePath);
     if (!inputFile.is_open()) {
@@ -127,11 +127,26 @@ void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string&
 
     std::string line;
     while (std::getline(inputFile, line)) {
-        outputFile << line << "\n";
+        size_t pos = 0;
+        while (pos < line.size()) {
+            bool tokenFound = false;
+            for (const auto& token : tokens) {
+                if (line.compare(pos, token.value.size(), token.value) == 0) {
+                    outputFile << "<span class=\"" << token.type << "\">" << token.value << "</span>";
+                    pos += token.value.size();
+                    tokenFound = true;
+                    break;
+                }
+            }
+            if (!tokenFound) {
+                outputFile << line[pos];
+                ++pos;
+            }
+        }
+        outputFile << "\n";
     }
 
     outputFile << "</pre></body></html>";
-
     inputFile.close();
     outputFile.close();
 }
