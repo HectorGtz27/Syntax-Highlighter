@@ -33,7 +33,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         for (std::sregex_iterator i = begin; i != end; ++i) {
             std::smatch match = *i;
             std::string comment = match.str();
-            if (comment.find("#t") != std::string::npos || comment.find("#f") != std::string::npos || comment.find("null") != std::string::npos) {
+            if (comment.find("#t") != std::string::npos || comment.find("#f") != std::string::npos || comment.find("NULL") != std::string::npos) {
                 std::string::size_type pos = 0;
                 while ((pos = comment.find("#t", pos)) != std::string::npos) {
                     lineTokens.emplace_back("literal", "#t");
@@ -45,8 +45,8 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
                     pos += 2;
                 }
                 pos = 0;
-                while ((pos = comment.find("null", pos)) != std::string::npos) {
-                    lineTokens.emplace_back("literal", "null");
+                while ((pos = comment.find("NULL", pos)) != std::string::npos) {
+                    lineTokens.emplace_back("literal", "NULL");
                     pos += 4;
                 }
             }

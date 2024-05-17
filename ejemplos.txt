@@ -27,13 +27,13 @@ int factorial(int n) {
     }
 }
 
-printf("%d %d %d\n", factorial(5), true, false, NULL);
+print("%d %d %d\n", factorial(5), true, false, NULL);
 
 
 ; Racket Example
-(define (factorial n)
+(def (factorial n)
   (if (= n 0)
       1
       (* n (factorial (- n 1)))))
 
-(display (list (factorial 5) #t #f null))
+(display (list (factorial 5) #t #f NULL))

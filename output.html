@@ -27,14 +27,14 @@
     }
 }
 
-<span class="keyword">print</span>f(<span class="literal">"%d %d %d\n"</span>, <span class="identifier">factorial</span>(<span class="literal">5</span>), <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">NULL</span>);
+<span class="keyword">print</span>(<span class="literal">"%d %d %d\n"</span>, <span class="identifier">factorial</span>(<span class="literal">5</span>), <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">NULL</span>);
 
 
 <span class="comment_singleline">; Racket Example</span>
-(<span class="keyword">def</span>i<span class="identifier">n</span>e (<span class="identifier">factorial</span> <span class="identifier">n</span>)
+(<span class="keyword">def</span> (<span class="identifier">factorial</span> <span class="identifier">n</span>)
   (<span class="keyword">if</span> (<span class="operator">=</span> <span class="identifier">n</span> <span class="literal">0</span>)
       <span class="literal">1</span>
       (<span class="operator">*</span> <span class="identifier">n</span> (<span class="identifier">factorial</span> (- <span class="identifier">n</span> <span class="literal">1</span>)))))
 
-(<span class="keyword">display</span> (<span class="keyword">list</span> (<span class="identifier">factorial</span> <span class="literal">5</span>) <span class="literal">#t</span> <span class="literal">#f</span> <span class="identifier">n</span>ull))
+(<span class="keyword">display</span> (<span class="keyword">list</span> (<span class="identifier">factorial</span> <span class="literal">5</span>) <span class="literal">#t</span> <span class="literal">#f</span> <span class="literal">NULL</span>))
 </pre></body></html>

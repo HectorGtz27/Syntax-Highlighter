@@ -31,14 +31,14 @@ int main() {
         regexMap["identifier"] = std::regex(R"(\b[a-zA-Z_][a-zA-Z0-9_-]*\b)");
 
         // Literals (including True, False, None, #t, #f, null, integers, and decimal numbers)
-        regexMap["literal"] = std::regex(R"((\".*?\"|'.*?'|\b\d+\.\d+\b|\b\d+\b|True|False|None|true|false|NULL|#t|#f|null))");
+        regexMap["literal"] = std::regex(R"((\".*?\"|'.*?'|\b\d+\.\d+\b|\b\d+\b|True|False|None|true|false|NULL|#t|#f))");
 
 
         // Operators (adjusted to avoid conflicts with identifiers containing hyphens)
         regexMap["operator"] = std::regex(R"([+\-*/=<>!&|^%~]+)");
 
         // Keywords
-        regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|void|define|list|display|print|printf)\b)");
+        regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|void|list|display|print)\b)");
 
         // Print tokens to console and store them in a vector
         std::vector<Token> tokens = removeCommentsAndStoreTokens("ejemplos.txt", regexMap);
