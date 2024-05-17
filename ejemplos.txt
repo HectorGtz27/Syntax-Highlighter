@@ -30,7 +30,7 @@ int factorial(int n) {
 print("%d %d %d\n", factorial(5), true, false, NULL);
 
 
-; Racket Example
+# Racket Example
 (def (factorial n)
   (if (= n 0)
       1

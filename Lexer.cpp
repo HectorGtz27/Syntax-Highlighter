@@ -92,6 +92,14 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
+        // Process special characters
+        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("special_character"));
+        for (std::sregex_iterator i = begin; i != end; ++i) {
+            std::smatch match = *i;
+            lineTokens.emplace_back("special_character", match.str());
+            line.replace(match.position(), match.length(), std::string(match.length(), ' '));
+        }
+
         for (const auto& token : lineTokens) {
             tokens.emplace_back(token.first, token.second);
             std::cout << "Found " << token.first << ": " << token.second << std::endl;
@@ -123,6 +131,7 @@ void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string&
         << ".keyword { color: blue; font-weight: bold; }"
         << ".operator { color: red; }"
         << ".identifier { color: aqua; }"
+        << ".special_character { color: purple; }"
         << "</style></head><body><pre>";
 
     std::string line;
@@ -139,8 +148,7 @@ void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string&
                 }
             }
             if (!tokenFound) {
-                outputFile << line[pos];
-                ++pos;
+                outputFile << line[pos++];
             }
         }
         outputFile << "\n";
