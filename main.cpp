@@ -17,8 +17,8 @@ int main() {
         // Identifiers
         regexMap["identifier"] = std::regex(R"(\b[a-zA-Z_][a-zA-Z0-9_]*\b)");
 
-        // Literals (including True, False, None, #t, #f, NULL)
-        regexMap["literal"] = std::regex(R"((\".*?\")|('.*?')|\b\d+\b|\b\d+\.\d+\b|True|False|None|true|false|NULL|#t|#f)");  // Modified
+        // Literals (including True, False, None, #t, #f, NULL, integers, and floating-point numbers)
+        regexMap["literal"] = std::regex(R"((\".*?\")|('.*?')|\b\d+\.\d+\b|\b\d+\b|True|False|None|true|false|NULL|#t|#f)");  // Corrected
 
         // Keywords
         regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|void|define|list|display|print)\b)");
@@ -27,7 +27,7 @@ int main() {
         regexMap["operator"] = std::regex(R"([+\-*/=<>!&|^%~]+)");
 
         // Special characters
-        regexMap["special_character"] = std::regex(R"([\(\)\{\}\[\],;:])");  // Added : 
+        regexMap["special_character"] = std::regex(R"([\(\)\{\}\[\],;:])");  // Removed .
 
         // Remove comments and store tokens
         std::vector<Token> tokens = removeCommentsAndStoreTokens("ejemplos.txt", regexMap);
