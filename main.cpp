@@ -1,3 +1,4 @@
+
 #include "SExpr.h"
 #include "RegexConverter.h"
 #include "Lexer.h"
@@ -29,8 +30,9 @@ int main() {
         // Identifiers (allowing hyphens in Racket)
         regexMap["identifier"] = std::regex(R"(\b[a-zA-Z_][a-zA-Z0-9_-]*\b)");
 
-        // Literals (including True, False, None, #t, #f, null)
-        regexMap["literal"] = std::regex(R"((\".*?\")|('.*?')|\b\d+\b|True|False|None|true|false|NULL|#t|#f|null)");
+        // Literals (including True, False, None, #t, #f, null, integers, and decimal numbers)
+        regexMap["literal"] = std::regex(R"((\".*?\"|'.*?'|\b\d+\.\d+\b|\b\d+\b|True|False|None|true|false|NULL|#t|#f|null))");
+
 
         // Operators (adjusted to avoid conflicts with identifiers containing hyphens)
         regexMap["operator"] = std::regex(R"([+\-*/=<>!&|^%~]+)");

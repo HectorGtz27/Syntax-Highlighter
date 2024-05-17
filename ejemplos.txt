@@ -1,32 +1,39 @@
-# Python
-def example_function(x, y):
-    if x > y:
-        return x
+# Python Example
+def example():
+    x = 123
+    y = 45.67
+    z = "Hello, world!"
+    return x, y, z
+
+print(example())
+
+
+# Python Example
+def factorial(n):
+    if n == 0:
+        return 1
     else:
-        return y
+        return n * factorial(n-1)
 
-print(True, False, None)
+print(factorial(5.4), True, False, None)
 
-// C
-void example_function(int x, int y) {
-    if (x > y) {
-        return x;
+
+// C Example
+int factorial(int n) {
+    if (n == 0) {
+        return 1;
     } else {
-        return y;
+        return n * factorial(n - 1);
     }
 }
 
-printf("%d %d %d\n", true, false, NULL);
+printf("%d %d %d\n", factorial(5), true, false, NULL);
 
 
-; Racket
-(define (example-function x y)
-  (if (> x y)
-      (return x)
-      (return y)))
+; Racket Example
+(define (factorial n)
+  (if (= n 0)
+      1
+      (* n (factorial (- n 1)))))
 
-(display (list #t #f null))
-
-
-
-
+(display (list (factorial 5) #t #f null))
