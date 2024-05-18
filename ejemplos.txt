@@ -1,39 +1,9 @@
-# Python Example
-def example():
-    x = 123
-    y = 45.67
-    z = "Hello, world!"
-    return x, y, z
-
-print(example())
-
-
-# Python Example
-def factorial(n):
-    if n == 0:
-        return 1
-    else:
-        return n * factorial(n-1)
-
-print(factorial(5.4), True, False, None)
-
-
-// C Example
-int factorial(int n) {
-    if (n == 0) {
-        return 1;
-    } else {
-        return n * factorial(n - 1);
-    }
+/*
+ * Este es un comentario multilínea.
+ */
+int main() {
+    // Este es un comentario de una sola línea
+    int x = 10;  // Variable de tipo entero
+    std::string s = "Hola, mundo!";
+    return 0;
 }
-
-print("%d %d %d\n", factorial(5), true, false, NULL);
-
-
-# Racket Example
-(def (factorial n)
-  (if (= n 0)
-      1
-      (* n (factorial (- n 1)))))
-
-(display (list (factorial 5) #f #f NULL))
