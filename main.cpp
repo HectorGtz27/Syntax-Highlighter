@@ -14,7 +14,7 @@ int main() {
     regexMap["literal"] = std::regex(R"((\".*?\")|('.*?')|\b\d+\.\d+\b|\b\d+\b|True|False|None|true|false|NULL|#t|#f)");
     regexMap["keyword"] = std::regex(R"(\b(if|else|while|for|def|class|import|return|void|define|list|display|print)\b)");
     regexMap["operator"] = std::regex(R"([+\-*/=<>!&|^%~]+)");
-    regexMap["special_character"] = std::regex(R"([\(\)\{\}\[\],;:])");
+    regexMap["special_character"] = std::regex(R"([\(\)\{\}\[\],;?:])");
 
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<Token> tokens = removeCommentsAndStoreTokens("ejemplos.txt", regexMap);

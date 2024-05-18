@@ -1,9 +1,1 @@
-/*
- * Este es un comentario multilínea.
- */
-int main() {
-    // Este es un comentario de una sola línea
-    int x = 10;  // Variable de tipo entero
-    std::string s = "Hola, mundo!";
-    return 0;
-}
+int fact(int n) { return (n == 0) ? 1 : n * fact(n - 1); }
