@@ -36,4 +36,4 @@ print("%d %d %d\n", factorial(5), true, false, NULL);
       1
       (* n (factorial (- n 1)))))
 
-(display (list (factorial 5) #t #f NULL))
+(display (list (factorial 5) #f #f NULL))
