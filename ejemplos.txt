@@ -1,1 +1,6 @@
-int fact(int n) { return (n == 0) ? 1 : n * fact(n - 1); }
+# Python
+print(5 + 3)
+3_val=100
+
+# C
+print("%d\n", 8);

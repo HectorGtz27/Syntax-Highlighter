@@ -18,83 +18,94 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
     std::string line;
     while (std::getline(file, line)) {
         std::vector<std::pair<std::string, std::string>> lineTokens;
+        bool error_found = false; // Track if an error is found in the line
+
+        std::cout << "Processing line: " << line << std::endl;
+
+        // Validation: Check if the line starts with a number
+        if (!line.empty() && std::isdigit(line[0])) {
+            std::cerr << "Syntax error: Line starts with a number: " << line << std::endl;
+            continue; // Skip processing this line
+        }
+
+        // Validation: Check if the line starts with an operator
+        std::smatch match;
+        if (std::regex_search(line, match, regexMap.at("operator")) && match.position() == 0) {
+            std::cerr << "Syntax error: Line starts with an operator: " << line << std::endl;
+            continue; // Skip processing this line
+        }
 
         // Process multiline comments
-        std::sregex_iterator begin(line.begin(), line.end(), regexMap.at("comment_multiline"));
-        std::sregex_iterator end;
-        for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::sregex_iterator begin_multiline(line.begin(), line.end(), regexMap.at("comment_multiline"));
+        std::sregex_iterator end_multiline;
+        for (std::sregex_iterator i = begin_multiline; i != end_multiline; ++i) {
             std::smatch match = *i;
             lineTokens.emplace_back("comment_multiline", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
         // Process single-line comments
-        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("comment_singleline"));
-        for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::sregex_iterator begin_singleline(line.begin(), line.end(), regexMap.at("comment_singleline"));
+        std::sregex_iterator end_singleline;
+        for (std::sregex_iterator i = begin_singleline; i != end_singleline; ++i) {
             std::smatch match = *i;
-            std::string comment = match.str();
-            if (comment.find("#t") != std::string::npos || comment.find("#f") != std::string::npos || comment.find("NULL") != std::string::npos) {
-                std::string::size_type pos = 0;
-                while ((pos = comment.find("#t", pos)) != std::string::npos) {
-                    lineTokens.emplace_back("literal", "#t");
-                    pos += 2;
-                }
-                pos = 0;
-                while ((pos = comment.find("#f", pos)) != std::string::npos) {
-                    lineTokens.emplace_back("literal", "#f");
-                    pos += 2;
-                }
-                pos = 0;
-                while ((pos = comment.find("NULL", pos)) != std::string::npos) {
-                    lineTokens.emplace_back("literal", "NULL");
-                    pos += 4;
-                }
-            }
-            else {
-                lineTokens.emplace_back("comment_singleline", match.str());
-            }
+            lineTokens.emplace_back("comment_singleline", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
+        // Process identifiers and validate them
+        std::cout << "Checking for identifiers..." << std::endl;
+        std::sregex_iterator begin_identifier(line.begin(), line.end(), regexMap.at("identifier"));
+        std::sregex_iterator end_identifier;
+        for (std::sregex_iterator i = begin_identifier; i != end_identifier; ++i) {
+            std::smatch match = *i;
+            std::string identifier = match.str();
+            std::cout << "Found identifier: " << identifier << std::endl;
+            if (!std::isalpha(identifier[0])) {
+                std::cerr << "Lexical error (Variable name has a wrong composition): " << identifier << " in line: " << line << std::endl;
+                error_found = true;
+                break; // Skip processing this line
+            }
+            lineTokens.emplace_back("identifier", match.str());
+            line.replace(match.position(), match.length(), std::string(match.length(), ' '));
+        }
+
+        if (error_found) {
+            std::cout << "Error found, skipping line" << std::endl;
+            continue; // Skip the rest of the processing for this line
+        }
+
         // Process literals
-        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("literal"));
-        for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::sregex_iterator begin_literal(line.begin(), line.end(), regexMap.at("literal"));
+        std::sregex_iterator end_literal;
+        for (std::sregex_iterator i = begin_literal; i != end_literal; ++i) {
             std::smatch match = *i;
             lineTokens.emplace_back("literal", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
         // Process keywords
-        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("keyword"));
-        for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::sregex_iterator begin_keyword(line.begin(), line.end(), regexMap.at("keyword"));
+        std::sregex_iterator end_keyword;
+        for (std::sregex_iterator i = begin_keyword; i != end_keyword; ++i) {
             std::smatch match = *i;
             lineTokens.emplace_back("keyword", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
         // Process operators
-        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("operator"));
-        for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::sregex_iterator begin_operator(line.begin(), line.end(), regexMap.at("operator"));
+        std::sregex_iterator end_operator;
+        for (std::sregex_iterator i = begin_operator; i != end_operator; ++i) {
             std::smatch match = *i;
-            std::string token = match.str();
-            if (token == "-" && std::regex_search(match.prefix().str() + "-" + match.suffix().str(), regexMap.at("identifier"))) {
-                continue;
-            }
             lineTokens.emplace_back("operator", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
-        // Process identifiers
-        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("identifier"));
-        for (std::sregex_iterator i = begin; i != end; ++i) {
-            std::smatch match = *i;
-            lineTokens.emplace_back("identifier", match.str());
-            line.replace(match.position(), match.length(), std::string(match.length(), ' '));
-        }
-
         // Process special characters
-        begin = std::sregex_iterator(line.begin(), line.end(), regexMap.at("special_character"));
-        for (std::sregex_iterator i = begin; i != end; ++i) {
+        std::sregex_iterator begin_special(line.begin(), line.end(), regexMap.at("special_character"));
+        std::sregex_iterator end_special;
+        for (std::sregex_iterator i = begin_special; i != end_special; ++i) {
             std::smatch match = *i;
             lineTokens.emplace_back("special_character", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
