@@ -3,8 +3,9 @@ print(5 + 3)
 +variable = 10
 3variable = 10
 4hello = "world"
- = 10
+= 10
 4 * 5 = 20
+if = 1  // Uso de palabra clave como identificador
 
 # C
 int main() {

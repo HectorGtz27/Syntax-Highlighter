@@ -45,6 +45,13 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
             }
         }
 
+        // Validation: Check for multiple operators in sequence
+        std::regex multiple_operators(R"([\+\-\*/=]{2,})");
+        if (std::regex_search(trimmed_line, match, multiple_operators)) {
+            std::cerr << "Syntax error: Multiple consecutive operators: " << line << std::endl;
+            continue; // Skip processing this line
+        }
+
         // Process multiline comments
         std::sregex_iterator begin_multiline(line.begin(), line.end(), regexMap.at("comment_multiline"));
         std::sregex_iterator end_multiline;
@@ -63,6 +70,15 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
+        // Process keywords separately to avoid marking them as identifiers
+        std::sregex_iterator begin_keyword(line.begin(), line.end(), regexMap.at("keyword"));
+        std::sregex_iterator end_keyword;
+        for (std::sregex_iterator i = begin_keyword; i != end_keyword; ++i) {
+            std::smatch match = *i;
+            lineTokens.emplace_back("keyword", match.str());
+            line.replace(match.position(), match.length(), std::string(match.length(), ' '));
+        }
+
         // Process identifiers and validate them
         std::cout << "Checking for identifiers..." << std::endl;
         std::sregex_iterator begin_identifier(line.begin(), line.end(), regexMap.at("identifier"));
@@ -71,11 +87,16 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
             std::smatch match = *i;
             std::string identifier = match.str();
             std::cout << "Found identifier: " << identifier << std::endl;
-            if (!std::isalpha(identifier[0])) {
+
+            // Validation: Identifiers should not start with a digit
+            if (!std::isalpha(identifier[0]) && identifier[0] != '_') {
                 std::cerr << "Lexical error (Variable name has a wrong composition): " << identifier << " in line: " << line << std::endl;
                 error_found = true;
                 break; // Skip processing this line
             }
+
+            // No need to validate against keywords as they have been processed separately
+
             lineTokens.emplace_back("identifier", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
@@ -91,15 +112,6 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         for (std::sregex_iterator i = begin_literal; i != end_literal; ++i) {
             std::smatch match = *i;
             lineTokens.emplace_back("literal", match.str());
-            line.replace(match.position(), match.length(), std::string(match.length(), ' '));
-        }
-
-        // Process keywords
-        std::sregex_iterator begin_keyword(line.begin(), line.end(), regexMap.at("keyword"));
-        std::sregex_iterator end_keyword;
-        for (std::sregex_iterator i = begin_keyword; i != end_keyword; ++i) {
-            std::smatch match = *i;
-            lineTokens.emplace_back("keyword", match.str());
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
