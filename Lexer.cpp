@@ -22,17 +22,27 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
 
         std::cout << "Processing line: " << line << std::endl;
 
-        // Validation: Check if the line starts with a number
-        if (!line.empty() && std::isdigit(line[0])) {
-            std::cerr << "Syntax error: Line starts with a number: " << line << std::endl;
+        // Remove leading whitespace to check the first character correctly
+        std::string trimmed_line = line;
+        trimmed_line.erase(trimmed_line.begin(), std::find_if(trimmed_line.begin(), trimmed_line.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+            }));
+
+        // Validation: Check if the trimmed line starts with an operator
+        std::smatch match;
+        if (!trimmed_line.empty() && std::regex_search(trimmed_line, match, regexMap.at("operator")) && match.position() == 0) {
+            std::cerr << "Syntax error: Line starts with an operator: " << line << std::endl;
             continue; // Skip processing this line
         }
 
-        // Validation: Check if the line starts with an operator
-        std::smatch match;
-        if (std::regex_search(line, match, regexMap.at("operator")) && match.position() == 0) {
-            std::cerr << "Syntax error: Line starts with an operator: " << line << std::endl;
-            continue; // Skip processing this line
+        // Validation: Check if the line starts with a number not followed by an operator or space
+        if (!trimmed_line.empty() && std::isdigit(trimmed_line[0])) {
+            // Check if the line starts with a number followed by an operator or space
+            std::regex number_followed_by_operator(R"(^\d+\s*[\+\-\*/])");
+            if (!std::regex_search(trimmed_line, match, number_followed_by_operator)) {
+                std::cerr << "Syntax error: Line starts with a number: " << line << std::endl;
+                continue; // Skip processing this line
+            }
         }
 
         // Process multiline comments

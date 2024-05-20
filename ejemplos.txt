@@ -1,6 +1,12 @@
 # Python
 print(5 + 3)
-3_val=100
++variable = 10
+3variable = 10
+4hello = "world"
+ = 10
+4 * 5 = 20
 
 # C
-print("%d\n", 8);
+int main() {
+    return 0;
+}
