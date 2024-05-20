@@ -16,14 +16,16 @@ int main() {
     regexMap["operator"] = std::regex(R"([+\-*/=<>!&|^%~]+)");
     regexMap["special_character"] = std::regex(R"([\(\)\{\}\[\],;?:])");
 
+    std::vector<std::pair<int, std::string>> syntaxErrors;
+
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<Token> tokens = removeCommentsAndStoreTokens("ejemplos.txt", regexMap);
+    std::vector<Token> tokens = removeCommentsAndStoreTokens("ejemplos.txt", regexMap, syntaxErrors);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff = end - start;
     std::cout << "Time to remove comments and store tokens: " << diff.count() << " s\n";
 
     start = std::chrono::high_resolution_clock::now();
-    generateHTMLWithTokens(tokens, "ejemplos.txt", "output.html");
+    generateHTMLWithTokens(tokens, "ejemplos.txt", "output.html", syntaxErrors);
     end = std::chrono::high_resolution_clock::now();
     diff = end - start;
     std::cout << "Time to generate HTML with tokens: " << diff.count() << " s\n";
@@ -44,4 +46,3 @@ int main() {
 
     return 0;
 }
-

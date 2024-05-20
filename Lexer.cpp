@@ -6,7 +6,7 @@
 #include <vector>
 
 // Function to remove comments, print tokens, and store tokens
-std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap) {
+std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, const std::map<std::string, std::regex>& regexMap, std::vector<std::pair<int, std::string>>& syntaxErrors) {
     std::ifstream file(filePath);
     std::vector<Token> tokens;
 
@@ -16,6 +16,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
     }
 
     std::string line;
+    int lineNumber = 1;
     while (std::getline(file, line)) {
         std::vector<std::pair<std::string, std::string>> lineTokens;
         bool error_found = false; // Track if an error is found in the line
@@ -31,7 +32,10 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         // Validation: Check if the trimmed line starts with an operator
         std::smatch match;
         if (!trimmed_line.empty() && std::regex_search(trimmed_line, match, regexMap.at("operator")) && match.position() == 0) {
-            std::cerr << "Syntax error: Line starts with an operator: " << line << std::endl;
+            std::string error = "Syntax error: Line starts with an operator: " + line;
+            std::cerr << error << std::endl;
+            syntaxErrors.emplace_back(lineNumber, line);
+            lineNumber++;
             continue; // Skip processing this line
         }
 
@@ -40,7 +44,10 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
             // Check if the line starts with a number followed by an operator or space
             std::regex number_followed_by_operator(R"(^\d+\s*[\+\-\*/])");
             if (!std::regex_search(trimmed_line, match, number_followed_by_operator)) {
-                std::cerr << "Syntax error: Line starts with a number: " << line << std::endl;
+                std::string error = "Syntax error: Line starts with a number: " + line;
+                std::cerr << error << std::endl;
+                syntaxErrors.emplace_back(lineNumber, line);
+                lineNumber++;
                 continue; // Skip processing this line
             }
         }
@@ -48,7 +55,10 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         // Validation: Check for multiple operators in sequence
         std::regex multiple_operators(R"([\+\-\*/=]{2,})");
         if (std::regex_search(trimmed_line, match, multiple_operators)) {
-            std::cerr << "Syntax error: Multiple consecutive operators: " << line << std::endl;
+            std::string error = "Syntax error: Multiple consecutive operators: " + line;
+            std::cerr << error << std::endl;
+            syntaxErrors.emplace_back(lineNumber, line);
+            lineNumber++;
             continue; // Skip processing this line
         }
 
@@ -90,7 +100,8 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
 
             // Validation: Identifiers should not start with a digit
             if (!std::isalpha(identifier[0]) && identifier[0] != '_') {
-                std::cerr << "Lexical error (Variable name has a wrong composition): " << identifier << " in line: " << line << std::endl;
+                std::string error = "Lexical error (Variable name has a wrong composition): " + identifier + " in line: " + line;
+                std::cerr << error << std::endl;
                 error_found = true;
                 break; // Skip processing this line
             }
@@ -103,6 +114,8 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
 
         if (error_found) {
             std::cout << "Error found, skipping line" << std::endl;
+            syntaxErrors.emplace_back(lineNumber, line);
+            lineNumber++;
             continue; // Skip the rest of the processing for this line
         }
 
@@ -137,6 +150,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
             tokens.emplace_back(token.first, token.second);
             std::cout << "Found " << token.first << ": " << token.second << std::endl;
         }
+        lineNumber++;
     }
 
     file.close();
@@ -144,7 +158,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
 }
 
 // Function to generate HTML with the input file content and highlight tokens
-void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string& inputFilePath, const std::string& outputFilePath) {
+void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string& inputFilePath, const std::string& outputFilePath, const std::vector<std::pair<int, std::string>>& syntaxErrors) {
     std::ifstream inputFile(inputFilePath);
     if (!inputFile.is_open()) {
         std::cerr << "Error opening file: " << inputFilePath << std::endl;
@@ -165,26 +179,39 @@ void generateHTMLWithTokens(const std::vector<Token>& tokens, const std::string&
         << ".operator { color: red; }"
         << ".identifier { color: aqua; }"
         << ".special_character { color: purple; }"
+        << ".syntax_error { text-decoration: underline; text-decoration-color: red; }"
         << "</style></head><body><pre>";
 
     std::string line;
+    int lineNumber = 1;
     while (std::getline(inputFile, line)) {
-        size_t pos = 0;
-        while (pos < line.size()) {
-            bool tokenFound = false;
-            for (const auto& token : tokens) {
-                if (line.compare(pos, token.value.size(), token.value) == 0) {
-                    outputFile << "<span class=\"" << token.type << "\">" << token.value << "</span>";
-                    pos += token.value.size();
-                    tokenFound = true;
-                    break;
-                }
-            }
-            if (!tokenFound) {
-                outputFile << line[pos++];
+        bool isErrorLine = false;
+        for (const auto& error : syntaxErrors) {
+            if (error.first == lineNumber) {
+                outputFile << "<span class=\"syntax_error\">" << line << "</span>\n";
+                isErrorLine = true;
+                break;
             }
         }
-        outputFile << "\n";
+        if (!isErrorLine) {
+            size_t pos = 0;
+            while (pos < line.size()) {
+                bool tokenFound = false;
+                for (const auto& token : tokens) {
+                    if (line.compare(pos, token.value.size(), token.value) == 0) {
+                        outputFile << "<span class=\"" << token.type << "\">" << token.value << "</span>";
+                        pos += token.value.size();
+                        tokenFound = true;
+                        break;
+                    }
+                }
+                if (!tokenFound) {
+                    outputFile << line[pos++];
+                }
+            }
+            outputFile << "\n";
+        }
+        lineNumber++;
     }
 
     outputFile << "</pre></body></html>";
