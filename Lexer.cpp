@@ -21,7 +21,6 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
         std::vector<std::pair<std::string, std::string>> lineTokens;
         bool error_found = false; // Track if an error is found in the line
 
-        std::cout << "Processing line: " << line << std::endl;
 
         // Remove leading whitespace to check the first character correctly
         std::string trimmed_line = line;
@@ -89,8 +88,7 @@ std::vector<Token> removeCommentsAndStoreTokens(const std::string& filePath, con
             line.replace(match.position(), match.length(), std::string(match.length(), ' '));
         }
 
-        // Process identifiers and validate them
-        std::cout << "Checking for identifiers..." << std::endl;
+
         std::sregex_iterator begin_identifier(line.begin(), line.end(), regexMap.at("identifier"));
         std::sregex_iterator end_identifier;
         for (std::sregex_iterator i = begin_identifier; i != end_identifier; ++i) {
