@@ -1,5 +1,3 @@
-### README
-
 # Lexical Analyzer Project
 
 ## Overview
