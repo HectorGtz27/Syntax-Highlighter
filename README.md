@@ -1,5 +1,7 @@
 # Lexical Analyzer Project
 
+![Syntax Highlighter](https://i0.wp.com/www.cssscript.com/wp-content/uploads/2017/11/ft-syntax-highlight.png?fit=610%2C453&ssl=1)
+
 ## Overview
 
 This project is a sophisticated lexical analyzer implemented in C++ designed to process and enhance source code files written in C, Python, and Racket. The primary feature of this analyzer is its ability to highlight syntax by accurately identifying various token types such as keywords, literals, identifiers, operators, and special characters. The analyzer generates HTML outputs that visually differentiate these token types, improving code readability and analysis.
