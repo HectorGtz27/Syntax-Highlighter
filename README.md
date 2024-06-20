@@ -1,7 +1,7 @@
 # Lexical Analyzer Project
 
 <div align="center">
-  <img src="[highlight_example.png](https://i0.wp.com/www.cssscript.com/wp-content/uploads/2017/11/ft-syntax-highlight.png?fit=610%2C453&ssl=1)" alt="Syntax Highlighter">
+  <img src="https://i0.wp.com/www.cssscript.com/wp-content/uploads/2017/11/ft-syntax-highlight.png?fit=610%2C453&ssl=1" alt="Syntax Highlighter">
 </div>
 
 
